@@ -1,6 +1,9 @@
 import { parse } from "./parser/index.ts";
 import { Item, Meal, Var, VarArith, VarMul, VarTerm } from "./parser/types.ts";
 
+import calorieTableHtml from "./calorie-table/dist/calorie-table.html.ts";
+import calorieTableJs from "./calorie-table/dist/calorie-table.script.ts";
+
 function evaluateFormula(
   node: VarArith | VarMul | VarTerm | number,
   variable: number,
@@ -98,21 +101,20 @@ export function evaluateCaloriesExcel(
   };
   return evaledObject;
 }
-export function calorieWidget(
-  contents: string,
-): { script: string; html: string } {
-  const content = evaluateCaloriesExcel(contents);
 
-  const headings = ["Meal Name", "Item", "Excel Form"];
+function calorieDataToTable(
+  data:
+    | ReturnType<typeof evaluateCalories>
+    | ReturnType<typeof evaluateCaloriesExcel>,
+) {
   const table = [];
-
-  if (content.items.length > 0) {
+  if (data.items.length > 0) {
     table.push([
-      content.name,
-      `${content.items[0].serving} ${content.items[0].name}`,
-      content.items[0].energy,
+      data.name,
+      `${data.items[0].serving} ${data.items[0].name}`,
+      data.items[0].energy,
     ]);
-    content.items.slice(1).forEach((item) => {
+    data.items.slice(1).forEach((item) => {
       table.push([
         "",
         `${item.serving} ${item.name}`,
@@ -120,63 +122,22 @@ export function calorieWidget(
       ]);
     });
   }
-
-  const tsv = table.map(
-    (row) => row.map((item) => `${item}`).join("\t"),
-  ).join("\n");
-
-  const htmlHeadings = headings.map((item) => `<td>${item}</td>`).join("");
-  const htmlData = table.map(
-    (row) =>
-      `<tr>${
-        row.map((item) => "<td>" + item.toString() + "</td>").join("")
-      }</tr>`,
-  ).join("");
-
-  const style = `
-<style>
-table {
-    color: white;
-    width: 100%;
-    border-collapse: collapse;
+  return table;
 }
 
-tr:nth-child(odd) {
-    background: black;
-}
+export function calorieWidget(
+  contents: string,
+): { script: string; html: string } {
+  const excelForm = calorieDataToTable(evaluateCaloriesExcel(contents));
+  const normalForm = calorieDataToTable(evaluateCalories(contents));
 
-tbody > tr:nth-child(even) {
-    background: black;
-}
-
-tbody > tr:nth-child(odd) {
-    background: gray;
-}
-
-td {
-    padding: 0.6rem;
-}
-</style>`;
-
-  const htmlTable = `
-    <table>
-      <thead>
-        <tr>${htmlHeadings}</tr>
-      </thead>
-      <tbody>
-        ${htmlData}
-      </tbody>
-    </table>
+  const script = `
+    globalThis.excelForm = ${JSON.stringify(excelForm)};
+    globalThis.regularForm = ${JSON.stringify(normalForm)};
+    ${calorieTableJs}
   `;
-
-  console.log(headings, table, htmlTable);
-
   return {
-    html: `${htmlTable}<button id="glax">copy</button>${style}`,
-    script: `
-    document.querySelector("#glax").addEventListener("click", () => {
-      navigator.clipboard.writeText(\`${tsv}\`)
-    })
-    `,
+    html: calorieTableHtml,
+    script: script,
   };
 }
