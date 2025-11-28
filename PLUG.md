@@ -1,7 +1,8 @@
 ---
-name: Library/you/hello/PLUG
+name: Library/joule/PLUG
 tags: meta/library
 files:
-- hello.plug.js
+- joule.plug.js
 ---
-This library does A, B and C.
+
+This plugin adds calorie parsing and resolution capabilities.

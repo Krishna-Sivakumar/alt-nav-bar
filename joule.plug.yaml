@@ -1,0 +1,14 @@
+name: joule
+functions:
+  showWidget:
+    path: src/joule.ts:calorieWidget
+    codeWidget: "calorie"
+  evaluateCalories:
+    path: src/joule.ts:evaluateCalories
+    syscall: joule.evaluateCalories
+  replaceVariable:
+    path: src/joule.ts:replaceVariable
+    syscall: joule.replaceVariable
+  parseCalorieBlocks:
+    path: src/block-parse.ts:calorieBlocks
+    syscall: joule.getPageCalorieBlocks
