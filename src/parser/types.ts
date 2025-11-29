@@ -4,10 +4,15 @@ export type Mul = number;
 export type Arith = number;
 export type Var = { type: "variable" };
 export type VarTerm = Var | Num;
+export type VarDiv = {
+  type: string;
+  left: VarDiv | VarTerm;
+  right: VarDiv | VarTerm;
+};
 export type VarMul = {
   type: string;
-  left: VarMul | VarTerm;
-  right: VarMul | VarTerm;
+  left: VarMul | VarDiv | VarTerm;
+  right: VarMul | VarDiv | VarTerm;
 };
 export type VarArith = {
   type: string;

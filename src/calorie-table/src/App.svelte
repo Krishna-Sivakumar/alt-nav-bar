@@ -40,6 +40,12 @@
 
   let data = $derived(isExcel ? excelForm : regularForm);
 
+  let totalCalories = $derived(
+    regularForm
+      .map((row) => parseFloat(row.at(2) || "0"))
+      .reduce((sum, val) => sum + val, 0),
+  );
+
   function copy() {
     navigator.clipboard.writeText(
       data.map((row) => row.map((item) => item.trim()).join("\t")).join("\n"),
@@ -67,6 +73,11 @@
         {/each}
       </tr>
     {/each}
+    <tr>
+      <td>Total Calories</td>
+      <td></td>
+      <td>{totalCalories}</td>
+    </tr>
   </tbody>
 </table>
 
@@ -88,6 +99,11 @@
 
   tbody > tr:nth-child(odd) {
     background: gray;
+  }
+
+  tbody > tr:last-child {
+    background: black;
+    font-weight: bold;
   }
 
   td {

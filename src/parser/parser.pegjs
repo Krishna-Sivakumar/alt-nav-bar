@@ -6,14 +6,7 @@ Item = _ serving:Arith unit:Unit? name:Name _ "(" formula:VarArith ")" _ {
 		return {serving, unit: unit || "", name, formula}
     }
 
-Unit = _ unit:(
-	"serving"
-    / "slice" / "slices"
-    / "grams" / "gram" / "g"
-    / "cups" / "cup"
-    / "tablespoon" / "tbsp"
-    / "teaspoon" / "tsp"
-) _ { return unit }
+Unit = [A-z]* { return text() }
 
 Name = _ name:String _ { return name }
 
@@ -31,7 +24,7 @@ VarArith
     }
     
 VarMul
-	= _ left:VarTerm _ right:((("*" / "/") VarTerm)*)? _ {
+	= _ left:VarDiv _ right:(("*" VarDiv)*)? _ {
     	let acc = left;
         for (let idx in right) {
         	const [op, val] = right[idx];
@@ -40,13 +33,23 @@ VarMul
         return acc;
     }
 
+VarDiv
+	= _ left:VarTerm _ right:(("/" VarTerm)*)? _ {
+    	let acc = left;
+        for (let idx in right) {
+        	const [op, val] = right[idx];
+            acc = {type: op, left: acc, right: val}
+        }
+        return acc;
+    }
+
 VarTerm
 	= _ num:Num _ { return num }
-    / "(" expr:Arith ")" { return expr }
+    / "(" expr:VarArith ")" { return expr }
     / Var
 
 Var
-	= _ "serving" / "s" _ { return {type: "variable"} }
+	= _ "s" _ { return {type: "variable"} }
 // -- Pure Expressions --
 
 Arith

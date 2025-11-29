@@ -11,6 +11,7 @@ export default {
     "Arith": "types.Arith",
     "Var": "types.Var",
     "VarTerm": "types.VarTerm",
+    "VarDiv": "types.VarDiv",
     "VarMul": "types.VarMul",
     "VarArith": "types.VarArith",
     "String": "types.String",

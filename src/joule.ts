@@ -3,6 +3,8 @@ import { Item, Meal, Var, VarArith, VarMul, VarTerm } from "./parser/types.ts";
 
 import calorieTableHtml from "./calorie-table/dist/calorie-table.html.ts";
 import calorieTableJs from "./calorie-table/dist/calorie-table.script.ts";
+import { editor } from "@silverbulletmd/silverbullet/syscalls";
+import { calorieBlocks } from "./block-parse.ts";
 
 function evaluateFormula(
   node: VarArith | VarMul | VarTerm | number,
@@ -19,8 +21,8 @@ function evaluateFormula(
       return evaluateFormula(node.left, variable) *
         evaluateFormula(node.right, variable);
     case "/":
-      return evaluateFormula(node.right, variable) /
-        evaluateFormula(node.left, variable);
+      return evaluateFormula(node.left, variable) /
+        evaluateFormula(node.right, variable);
     case "+":
       return evaluateFormula(node.left, variable) +
         evaluateFormula(node.right, variable);
@@ -85,6 +87,11 @@ export function evaluateCalories(
     })),
   };
   return evaledObject;
+}
+
+export async function GetPageMeals() {
+  const blocks = await calorieBlocks();
+  return blocks.map((block) => evaluateCalories(block));
 }
 
 export function evaluateCaloriesExcel(

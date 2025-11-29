@@ -10,5 +10,5 @@ functions:
     path: src/joule.ts:replaceVariable
     syscall: joule.replaceVariable
   parseCalorieBlocks:
-    path: src/block-parse.ts:calorieBlocks
+    path: src/joule.ts:GetPageMeals
     syscall: joule.getPageCalorieBlocks
